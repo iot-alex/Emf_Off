@@ -86,6 +86,9 @@ void loop() {
   respondToReceivedSerialData();
 }
 
+int noiseCount = 0;
+unsigned long noiseStartMillis = 0;
+
 bool noiseDetected() {
   analogReference(DEFAULT);
   int microphoneLevel = analogRead(MICROPHONE_LEVEL_SENSE_PIN);
@@ -96,7 +99,16 @@ bool noiseDetected() {
   int alarmThreshold = ALARM_THRESHOLD_MINIMUM + scaledADC;
 
   if (microphoneLevel > alarmThreshold) {
-    return true;
+    if (millis() - noiseStartMillis > 500) {
+      noiseStartMillis = millis();
+      noiseCount = 0;
+    }
+
+    noiseCount++;
+
+    if (noiseCount > 25) {
+      return true;
+    }
   }
 
   return false;
