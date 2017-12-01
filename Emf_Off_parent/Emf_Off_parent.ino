@@ -225,11 +225,6 @@ void pulseStatusLed(unsigned int microsSinceLastLoop) {
 }
 
 byte getLedPulseBrightnessLevel(byte inputBrightnessLevel) {
-  byte completeCycleIndex = (LED_PULSE_LOOKUP_TABLE_SIZE * 2) - 1;
-  while (inputBrightnessLevel > completeCycleIndex) {
-    inputBrightnessLevel -= completeCycleIndex;
-  }
-
   byte halfCycleIndex = LED_PULSE_LOOKUP_TABLE_SIZE - 1;
   if (inputBrightnessLevel > halfCycleIndex) {
     inputBrightnessLevel = halfCycleIndex - ((inputBrightnessLevel - halfCycleIndex) - 1);
