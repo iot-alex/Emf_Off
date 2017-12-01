@@ -181,8 +181,8 @@ void loop() {
       pulseLed = true;
       pulseLedOnlyOnce = true;
 
-      initialLedPulseBrightnessLevel = 189;
-      ledPulseBrightnessLevelLookupInput = 10;
+      initialLedPulseBrightnessLevel = 4;
+      ledPulseBrightnessLevelLookupInput = 195;
     }
   }
   else if (alertActive) {
