@@ -9,7 +9,6 @@ static const int ALARM_THRESHOLD_SENSE_PIN = A0;
 static const int STATUS_LED_PIN = 0;
 static const int SUPPLY_VOLTAGE_SENSE_PIN = A3;
 
-static const int POWER_ON_STATUS_DISPLAY_DURATION_MS = 3000;
 static const int ALERT_RETRY_INTERVAL_MILLISECONDS = 1000;
 static const unsigned long LOW_BATTERY_CHECK_INTERVAL_MS = 120000;
 static const int ALARM_THRESHOLD_MINIMUM = 500;
@@ -44,10 +43,10 @@ void setup() {
   pinMode(ALARM_THRESHOLD_SENSE_PIN, INPUT_PULLUP);
 
   if (batteryVoltageIsOk(SUPPLY_VOLTAGE_SENSE_PIN)) {
-    displayStatusOk();
+    displayStatusOk(STATUS_LED_PIN);
   }
   else {
-    displayStatusLowBattery();
+    displayStatusLowBattery(STATUS_LED_PIN);
   }
 }
 
@@ -125,23 +124,5 @@ void respondToReceivedSerialData() {
         lowBatteryWarningAcknowledged = true;
         break;
     }
-  }
-}
-
-void displayStatusOk() {
-  digitalWrite(STATUS_LED_PIN, HIGH);
-  delay(POWER_ON_STATUS_DISPLAY_DURATION_MS);
-  digitalWrite(STATUS_LED_PIN, LOW);
-}
-
-void displayStatusLowBattery() {
-  byte flashSpeedMilliseconds = 100;
-  byte flashCount = POWER_ON_STATUS_DISPLAY_DURATION_MS / (flashSpeedMilliseconds * 2);
-
-  for(byte i = 0; i < flashCount; i++) {
-    digitalWrite(STATUS_LED_PIN, HIGH);
-    delay(flashSpeedMilliseconds);
-    digitalWrite(STATUS_LED_PIN, LOW);
-    delay(flashSpeedMilliseconds);
   }
 }

@@ -16,3 +16,21 @@ bool batteryVoltageIsOk(int supplyVoltageSensePin) {
 
   return !lowBatteryVoltage;
 }
+
+void displayStatusOk(int statusLedPin) {
+  digitalWrite(statusLedPin, HIGH);
+  delay(POWER_ON_STATUS_DISPLAY_DURATION_MS);
+  digitalWrite(statusLedPin, LOW);
+}
+
+void displayStatusLowBattery(int statusLedPin) {
+  byte flashSpeedMilliseconds = 100;
+  byte flashCount = POWER_ON_STATUS_DISPLAY_DURATION_MS / (flashSpeedMilliseconds * 2);
+
+  for(byte i = 0; i < flashCount; i++) {
+    digitalWrite(statusLedPin, HIGH);
+    delay(flashSpeedMilliseconds);
+    digitalWrite(statusLedPin, LOW);
+    delay(flashSpeedMilliseconds);
+  }
+}

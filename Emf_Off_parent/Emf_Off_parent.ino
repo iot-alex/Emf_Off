@@ -10,7 +10,6 @@ static const int BUTTON_PIN = A0;
 static const int SUPPLY_VOLTAGE_SENSE_PIN = A1;
 static const int VIBRATE_MOTOR_PIN = 1;
 
-static const int POWER_ON_STATUS_DISPLAY_DURATION_MS = 2000;
 static const unsigned long COMMS_CHECK_RETRY_INTERVAL_MICROS = 2000000;
 static const unsigned long BUTTON_DEBOUNCE_TIMEOUT_MICROSECONDS = 500000;
 static const unsigned long MUTE_LED_PULSE_INTERVAL_MICROSECONDS = 60000000;
@@ -57,28 +56,10 @@ void setup() {
   pinMode(SUPPLY_VOLTAGE_SENSE_PIN, INPUT_PULLUP);
 
   if (batteryVoltageIsOk(SUPPLY_VOLTAGE_SENSE_PIN)) {
-    displayStatusOk();
+    displayStatusOk(STATUS_LED_PIN);
   }
   else {
-    displayStatusLowBattery();
-  }
-}
-
-void displayStatusOk() {
-  digitalWrite(STATUS_LED_PIN, HIGH);
-  delay(POWER_ON_STATUS_DISPLAY_DURATION_MS);
-  digitalWrite(STATUS_LED_PIN, LOW);
-}
-
-void displayStatusLowBattery() {
-  byte flashSpeedMilliseconds = 100;
-  byte flashCount = POWER_ON_STATUS_DISPLAY_DURATION_MS / (flashSpeedMilliseconds * 2);
-
-  for(byte i = 0; i < flashCount; i++) {
-    digitalWrite(STATUS_LED_PIN, HIGH);
-    delay(flashSpeedMilliseconds);
-    digitalWrite(STATUS_LED_PIN, LOW);
-    delay(flashSpeedMilliseconds);
+    displayStatusLowBattery(STATUS_LED_PIN);
   }
 }
 
