@@ -14,11 +14,10 @@ static const unsigned long COMMS_CHECK_RETRY_INTERVAL_MICROS = 2000000;
 static const unsigned long BUTTON_DEBOUNCE_TIMEOUT_MICROSECONDS = 500000;
 static const unsigned long MUTE_LED_PULSE_INTERVAL_MICROSECONDS = 60000000;
 static const unsigned long ALERT_ACTIVE_LED_FLASH_DURATION_MICROSECONDS = 100000;
-static const unsigned long ALERT_ACTIVE_VIBRATE_DURATION_MICROSECONDS = 1000000;
 static const int LED_PULSE_LOOKUP_TABLE_SIZE = 100;
 static const int BUTTON_PRESSED_ADC_VALUE_THRESHOLD = 750;
 
-static const unsigned long TRANSMITTER_LOW_BATTERY_WARNING_LED_FLASH_DURATION_MICROSEDONDS = 700000;
+static const unsigned long TRANSMITTER_LOW_BATTERY_WARNING_LED_FLASH_DURATION_MICROSEDONDS = 500000;
 static const unsigned long LOW_BATTERY_WARNING_LED_FLASH_DURATION_MICROSECONDS = 2000000;
 
 SoftwareSerial softSerial(RX_PIN, TX_PIN);
@@ -260,10 +259,23 @@ void flashStatusLed(unsigned int microsSinceLastLoop, unsigned long flashDuratio
 void vibrate(unsigned int microsSinceLastLoop) {
   vibrateDurationTimer += microsSinceLastLoop;
 
-  if (vibrateDurationTimer < ALERT_ACTIVE_VIBRATE_DURATION_MICROSECONDS) {
+
+  if (vibrateDurationTimer < 200000) {
     digitalWrite(VIBRATE_MOTOR_PIN, HIGH);
   }
-  else if (vibrateDurationTimer < 2 * ALERT_ACTIVE_VIBRATE_DURATION_MICROSECONDS) {
+  else if (vibrateDurationTimer < 400000) {
+    digitalWrite(VIBRATE_MOTOR_PIN, LOW);
+  }
+  else if (vibrateDurationTimer < 600000) {
+    digitalWrite(VIBRATE_MOTOR_PIN, HIGH);
+  }
+  else if (vibrateDurationTimer < 800000) {
+    digitalWrite(VIBRATE_MOTOR_PIN, LOW);
+  }
+  else if (vibrateDurationTimer < 1000000) {
+    digitalWrite(VIBRATE_MOTOR_PIN, HIGH);
+  }
+  else if (vibrateDurationTimer < 5000000) {
     digitalWrite(VIBRATE_MOTOR_PIN, LOW);
   }
   else {
