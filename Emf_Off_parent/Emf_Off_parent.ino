@@ -19,6 +19,7 @@ static const int BUTTON_PRESSED_ADC_VALUE_THRESHOLD = 750;
 
 static const unsigned long TRANSMITTER_LOW_BATTERY_WARNING_LED_FLASH_DURATION_MICROSEDONDS = 500000;
 static const unsigned long LOW_BATTERY_WARNING_LED_FLASH_DURATION_MICROSECONDS = 2000000;
+static const byte LOW_BATTERY_ALERT_LED_BRIGHTNESS = 4;
 
 SoftwareSerial softSerial(RX_PIN, TX_PIN);
 
@@ -189,10 +190,10 @@ void loop() {
     vibrate(microsSinceLastLoop);
   }
   else if (displayTransmitterLowBattery) {
-    flashStatusLed(microsSinceLastLoop, TRANSMITTER_LOW_BATTERY_WARNING_LED_FLASH_DURATION_MICROSEDONDS, 10);
+    flashStatusLed(microsSinceLastLoop, TRANSMITTER_LOW_BATTERY_WARNING_LED_FLASH_DURATION_MICROSEDONDS, LOW_BATTERY_ALERT_LED_BRIGHTNESS);
   }
   else if (!batteryVoltageIsOk(SUPPLY_VOLTAGE_SENSE_PIN)) {
-    flashStatusLed(microsSinceLastLoop, LOW_BATTERY_WARNING_LED_FLASH_DURATION_MICROSECONDS, 10);
+    flashStatusLed(microsSinceLastLoop, LOW_BATTERY_WARNING_LED_FLASH_DURATION_MICROSECONDS, LOW_BATTERY_ALERT_LED_BRIGHTNESS);
   }
 
   if (pulseLed) {
