@@ -87,16 +87,22 @@ void loop() {
   respondToReceivedSerialData();
 }
 
+float averageNoiseLevel = 0.0f;
+
 bool noiseDetected() {
   analogReference(DEFAULT);
-  int microphoneLevel = analogRead(MICROPHONE_LEVEL_SENSE_PIN);
 
   //  TODO: Don't read the threshold every time as it is quite slow and will reduce our ability to detect sounds
   int rawAdc = analogRead(ALARM_THRESHOLD_SENSE_PIN);
   int scaledADC = (rawAdc - NOISE_SENSE_THRESHOLD_ADC_MINIMUM) / ALARM_THRESHOLD_SENSE_SCALE_FACTOR;
   int alarmThreshold = ALARM_THRESHOLD_MINIMUM + scaledADC;
 
-  if (microphoneLevel > alarmThreshold) {
+  int microphoneLevel = analogRead(MICROPHONE_LEVEL_SENSE_PIN);
+  float deltaLevel = microphoneLevel - averageNoiseLevel;
+  float scaledDelta = deltaLevel * 0.05f;
+  averageNoiseLevel += scaledDelta;
+
+  if (averageNoiseLevel > alarmThreshold) {
     return true;
   }
 
