@@ -17,19 +17,20 @@ static const unsigned long ALERT_ACTIVE_LED_FLASH_DURATION_MICROSECONDS = 100000
 static const int LED_PULSE_LOOKUP_TABLE_SIZE = 100;
 static const int BUTTON_PRESSED_ADC_VALUE_THRESHOLD = 750;
 
-static const unsigned long TRANSMITTER_LOW_BATTERY_WARNING_LED_FLASH_DURATION_MICROSEDONDS = 500000;
+static const unsigned long BABY_UNIT_LOW_BATTERY_WARNING_LED_FLASH_DURATION_MICROSEDONDS = 500000;
 static const unsigned long LOW_BATTERY_WARNING_LED_FLASH_DURATION_MICROSECONDS = 2000000;
-static const byte LOW_BATTERY_ALERT_LED_BRIGHTNESS = 4;
+static const byte LOW_BATTERY_ALERT_LED_BRIGHTNESS = 2;
 
 SoftwareSerial softSerial(RX_PIN, TX_PIN);
 
 bool alertActive = false;
 volatile bool muted = false;
 volatile bool doCommsTest = true;
-bool displayTransmitterLowBattery = false;
+bool displayBabyUnitLowBattery = false;
 
 unsigned long ledFlashDurationTimer = 0;
 unsigned long vibrateDurationTimer = 0;
+bool lowBatteryVibrateDone = false;
 byte ledFlashCount = 0;
 bool ledIsOn = false;
 
@@ -95,7 +96,7 @@ void onClick() {
   else if (muted) {
     unmute();
   }
-  else if (!displayTransmitterLowBattery) {
+  else if (!displayBabyUnitLowBattery) {
     doCommsTest = true;
   }
   else {
@@ -112,7 +113,7 @@ void cancelAlert() {
 }
 
 void cancelTransmitterLowBatteryAlert() {
-  displayTransmitterLowBattery = false;
+  displayBabyUnitLowBattery = false;
   digitalWrite(STATUS_LED_PIN, LOW);
 }
 
@@ -189,11 +190,18 @@ void loop() {
     flashStatusLed(microsSinceLastLoop, ALERT_ACTIVE_LED_FLASH_DURATION_MICROSECONDS, 255);
     vibrate(microsSinceLastLoop);
   }
-  else if (displayTransmitterLowBattery) {
-    flashStatusLed(microsSinceLastLoop, TRANSMITTER_LOW_BATTERY_WARNING_LED_FLASH_DURATION_MICROSEDONDS, LOW_BATTERY_ALERT_LED_BRIGHTNESS);
+  else if (displayBabyUnitLowBattery) {
+    flashStatusLed(microsSinceLastLoop, BABY_UNIT_LOW_BATTERY_WARNING_LED_FLASH_DURATION_MICROSEDONDS, LOW_BATTERY_ALERT_LED_BRIGHTNESS);
   }
   else if (!batteryVoltageIsOk(SUPPLY_VOLTAGE_SENSE_PIN)) {
     flashStatusLed(microsSinceLastLoop, LOW_BATTERY_WARNING_LED_FLASH_DURATION_MICROSECONDS, LOW_BATTERY_ALERT_LED_BRIGHTNESS);
+    if (!lowBatteryVibrateDone) {
+      blockingLowBatteryVibrate();
+      lowBatteryVibrateDone = true;
+    }
+  }
+  else {
+    lowBatteryVibrateDone = false;
   }
 
   if (pulseLed) {
@@ -260,7 +268,6 @@ void flashStatusLed(unsigned int microsSinceLastLoop, unsigned long flashDuratio
 void vibrate(unsigned int microsSinceLastLoop) {
   vibrateDurationTimer += microsSinceLastLoop;
 
-
   if (vibrateDurationTimer < 200000) {
     digitalWrite(VIBRATE_MOTOR_PIN, HIGH);
   }
@@ -284,6 +291,12 @@ void vibrate(unsigned int microsSinceLastLoop) {
   }
 }
 
+void blockingLowBatteryVibrate() {
+  digitalWrite(VIBRATE_MOTOR_PIN, HIGH);
+  delay(100);
+  digitalWrite(VIBRATE_MOTOR_PIN, LOW);
+}
+
 void respondToReceivedSerialData() {
   while (softSerial.available()) {
     char receivedChar = softSerial.read();
@@ -295,7 +308,8 @@ void respondToReceivedSerialData() {
         break;
       case 'B':
         softSerial.print('B');
-        displayTransmitterLowBattery = true;
+        displayBabyUnitLowBattery = true;
+        blockingLowBatteryVibrate();
         break;
     }
   }
