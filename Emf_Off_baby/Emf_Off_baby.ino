@@ -33,7 +33,6 @@ Alert alert;
 unsigned long previousMillis = 0;
 unsigned long millisSinceLowBatteryCheck = LOW_BATTERY_CHECK_INTERVAL_MS;
 bool lowBatteryWarningAcknowledged = false;
-int microphoneAdcLevelAlarmThreshold;
 
 void setup() {
   softSerial.begin(9600);
