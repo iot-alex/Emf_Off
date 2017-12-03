@@ -34,6 +34,9 @@ unsigned long previousMillis = 0;
 unsigned long millisSinceLowBatteryCheck = LOW_BATTERY_CHECK_INTERVAL_MS;
 bool lowBatteryWarningAcknowledged = false;
 
+int noiseCount = 0;
+unsigned long noiseStartMillis = 0;
+
 void setup() {
   softSerial.begin(9600);
 
@@ -85,9 +88,6 @@ void loop() {
 
   respondToReceivedSerialData();
 }
-
-int noiseCount = 0;
-unsigned long noiseStartMillis = 0;
 
 bool noiseDetected() {
   analogReference(DEFAULT);
