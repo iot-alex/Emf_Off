@@ -106,7 +106,7 @@ bool noiseDetected() {
 
     noiseCount++;
 
-    if (noiseCount > 25) {
+    if (noiseCount > 50) {
       return true;
     }
   }
