@@ -14,6 +14,7 @@ static const unsigned long LOW_BATTERY_CHECK_INTERVAL_MS = 120000;
 static const int ALARM_THRESHOLD_MINIMUM = 500;
 static const int NOISE_SENSE_THRESHOLD_ADC_MINIMUM = 490;
 static const int ALARM_THRESHOLD_SENSE_SCALE_FACTOR = 4;
+static const int MINIMUM_NOISE_COUNT_TO_TRIGER_ALERT = 25;
 
 
 struct Alert {
@@ -106,7 +107,7 @@ bool noiseDetected() {
 
     noiseCount++;
 
-    if (noiseCount > 50) {
+    if (noiseCount > MINIMUM_NOISE_COUNT_TO_TRIGER_ALERT) {
       return true;
     }
   }
