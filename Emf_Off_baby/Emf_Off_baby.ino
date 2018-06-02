@@ -14,6 +14,8 @@ static const unsigned long LOW_BATTERY_CHECK_INTERVAL_MS = 120000;
 static const int ALARM_THRESHOLD_MINIMUM = 500;
 static const int NOISE_SENSE_THRESHOLD_ADC_MINIMUM = 490;
 static const int ALARM_THRESHOLD_SENSE_SCALE_FACTOR = 4;
+static const int MINIMUM_ALERT_TRIGGER_NOISE_DURATION_MS = 800;
+static const int MAXIMUM_ALERT_TRIGGER_NOISE_DURATION_MS = 1000;
 
 
 struct Alert {
@@ -33,6 +35,9 @@ Alert alert;
 unsigned long previousMillis = 0;
 unsigned long millisSinceLowBatteryCheck = LOW_BATTERY_CHECK_INTERVAL_MS;
 bool lowBatteryWarningAcknowledged = false;
+
+unsigned long noiseStartMillis = 0;
+bool timingNoiseDuration = false;
 
 void setup() {
   softSerial.begin(9600);
@@ -55,10 +60,6 @@ void loop() {
 
   if (noiseDetected()) {
     alert.active = true;
-    analogWrite(STATUS_LED_PIN, 15);
-  }
-  else {
-    digitalWrite(STATUS_LED_PIN, LOW);
   }
 
   if (alert.active && !alert.acknowledged) {
@@ -95,10 +96,29 @@ bool noiseDetected() {
   int scaledADC = (rawAdc - NOISE_SENSE_THRESHOLD_ADC_MINIMUM) / ALARM_THRESHOLD_SENSE_SCALE_FACTOR;
   int alarmThreshold = ALARM_THRESHOLD_MINIMUM + scaledADC;
 
-  if (microphoneLevel > alarmThreshold) {
-    return true;
+  unsigned long int noiseDurationMillis = millis() - noiseStartMillis;
+
+  if (timingNoiseDuration && noiseDurationMillis > MAXIMUM_ALERT_TRIGGER_NOISE_DURATION_MS) {
+    timingNoiseDuration = false;
   }
 
+  if (microphoneLevel > alarmThreshold) {
+    analogWrite(STATUS_LED_PIN, 15);
+
+    if (!timingNoiseDuration) {
+      timingNoiseDuration = true;
+      noiseStartMillis = millis();
+      noiseDurationMillis = 0;
+    }
+
+    if (noiseDurationMillis > MINIMUM_ALERT_TRIGGER_NOISE_DURATION_MS) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  digitalWrite(STATUS_LED_PIN, LOW);
   return false;
 }
 
